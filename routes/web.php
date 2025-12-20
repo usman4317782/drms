@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,4 +118,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
+
+Route::get('/_show-users', function () {
+    return DB::table('users')
+        ->select('id', 'email')
+        ->get();
+});
 require __DIR__ . '/auth.php';
