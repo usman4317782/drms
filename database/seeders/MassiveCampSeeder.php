@@ -5,31 +5,26 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Faker\Factory as Faker;
 
 class MassiveCampSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $faker = Faker::create();
+        $faker = app(\Faker\Generator::class);
 
         $totalRecords = 5200;
         $chunkSize = 500;
 
-        $this->command->info("Seeding {$totalRecords} camps assigned to existing managers...");
+        $this->command->info("Seeding {$totalRecords} camps...");
 
-        // Get camp manager IDs
-        $managerIds = User::whereHas('roles', function ($q) {
-            $q->where('slug', 'camp_manager');
-        })->pluck('id')->toArray();
+        $managerIds = User::whereHas(
+            'roles',
+            fn($q) =>
+            $q->where('slug', 'camp_manager')
+        )->pluck('id')->toArray();
 
-        if (empty($managerIds)) {
-            $this->command->error(
-                "No camp managers found! Run SystemWideMassiveSeeder first."
-            );
+        if (!$managerIds) {
+            $this->command->error("No camp managers found. Run SystemWideMassiveSeeder first.");
             return;
         }
 
@@ -57,13 +52,10 @@ class MassiveCampSeeder extends Seeder
                 $camps = [];
 
                 for ($j = 0; $j < $chunkSize; $j++) {
-                    $selectedFacilities = [];
+                    $facilities = [];
 
-                    foreach (
-                        $faker->randomElements($facilitySlugs, rand(2, 5))
-                        as $slug
-                    ) {
-                        $selectedFacilities[$slug] = 1;
+                    foreach ($faker->randomElements($facilitySlugs, rand(2, 5)) as $slug) {
+                        $facilities[$slug] = 1;
                     }
 
                     $capacity = $faker->numberBetween(100, 5000);
@@ -74,9 +66,9 @@ class MassiveCampSeeder extends Seeder
                         'location' => $faker->address(),
                         'capacity' => $capacity,
                         'current_occupancy' => (int) ($capacity * $faker->randomFloat(2, 0.1, 0.9)),
-                        'status' => $faker->randomElement(['active', 'active', 'active', 'full', 'closed']),
+                        'status' => $faker->randomElement(['active', 'active', 'full', 'closed']),
                         'manager_id' => $faker->randomElement($managerIds),
-                        'facilities' => json_encode($selectedFacilities),
+                        'facilities' => json_encode($facilities),
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -85,9 +77,9 @@ class MassiveCampSeeder extends Seeder
                 DB::table('camps')->insert($camps);
             });
 
-            $this->command->info("Batch " . ($i / $chunkSize + 1) . " processed.");
+            $this->command->info("Batch " . ($i / $chunkSize + 1) . " done.");
         }
 
-        $this->command->info("Massive camp seeding complete.");
+        $this->command->info("Camp seeding complete.");
     }
 }
