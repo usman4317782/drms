@@ -5,13 +5,12 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class MassiveCampSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = app(\Faker\Generator::class);
-
         $totalRecords = 5200;
         $chunkSize = 500;
 
@@ -24,7 +23,7 @@ class MassiveCampSeeder extends Seeder
         )->pluck('id')->toArray();
 
         if (!$managerIds) {
-            $this->command->error("No camp managers found. Run SystemWideMassiveSeeder first.");
+            $this->command->error("No camp managers found.");
             return;
         }
 
@@ -46,28 +45,26 @@ class MassiveCampSeeder extends Seeder
                 $chunkSize,
                 $managerIds,
                 $facilitySlugs,
-                $districts,
-                $faker
+                $districts
             ) {
                 $camps = [];
 
                 for ($j = 0; $j < $chunkSize; $j++) {
                     $facilities = [];
-
-                    foreach ($faker->randomElements($facilitySlugs, rand(2, 5)) as $slug) {
+                    foreach (array_rand(array_flip($facilitySlugs), rand(2, 5)) as $slug) {
                         $facilities[$slug] = 1;
                     }
 
-                    $capacity = $faker->numberBetween(100, 5000);
+                    $capacity = rand(100, 5000);
 
                     $camps[] = [
-                        'name' => $faker->company() . ' Relief Camp ' . $faker->numerify('#####'),
-                        'district' => $faker->randomElement($districts),
-                        'location' => $faker->address(),
+                        'name' => 'Relief Camp ' . Str::upper(Str::random(5)),
+                        'district' => $districts[array_rand($districts)],
+                        'location' => 'Sector ' . rand(1, 50),
                         'capacity' => $capacity,
-                        'current_occupancy' => (int) ($capacity * $faker->randomFloat(2, 0.1, 0.9)),
-                        'status' => $faker->randomElement(['active', 'active', 'full', 'closed']),
-                        'manager_id' => $faker->randomElement($managerIds),
+                        'current_occupancy' => rand((int)($capacity * 0.1), (int)($capacity * 0.9)),
+                        'status' => ['active', 'active', 'full', 'closed'][rand(0, 3)],
+                        'manager_id' => $managerIds[array_rand($managerIds)],
                         'facilities' => json_encode($facilities),
                         'created_at' => now(),
                         'updated_at' => now(),
