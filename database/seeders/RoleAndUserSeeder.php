@@ -38,7 +38,7 @@ class RoleAndUserSeeder extends Seeder
             ],
             [
                 'name' => 'Usman Supporter',
-                'email' => 'usman@gmail.com',
+                'email' => 'usman4317782@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'supporter',
                 'status' => 'active'
