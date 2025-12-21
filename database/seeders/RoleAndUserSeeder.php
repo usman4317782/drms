@@ -31,7 +31,7 @@ class RoleAndUserSeeder extends Seeder
         $users = [
             [
                 'name' => 'System Admin',
-                'email' => 'admin@drms.pk',
+                'email' => 'admindrms@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'status' => 'active'
@@ -45,7 +45,7 @@ class RoleAndUserSeeder extends Seeder
             ],
             [
                 'name' => 'Kamran Manager',
-                'email' => 'kamran@gmail.com',
+                'email' => 'kamrandrms@gmail.com',
                 'password' => Hash::make('password'),
                 'role' => 'camp_manager',
                 'status' => 'active'
