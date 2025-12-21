@@ -11,6 +11,9 @@ use Illuminate\Support\Str;
 
 class SystemWideMassiveSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
         $totalRecords = 5500;
@@ -18,20 +21,23 @@ class SystemWideMassiveSeeder extends Seeder
 
         $this->command->info("Seeding {$totalRecords} users across all roles...");
 
-        $roleIds = Role::pluck('id', 'slug')->toArray();
+        // Get all role IDs
+        $allRoles = Role::all();
+        $roleIds = $allRoles->pluck('id', 'slug')->toArray();
+        $roleSlugs = $allRoles->pluck('slug')->toArray();
+
+        // High performance hashing (hash once)
         $hashedPassword = Hash::make('password');
 
         for ($i = 0; $i < $totalRecords; $i += $chunkSize) {
-            DB::transaction(function () use ($chunkSize, $roleIds, $hashedPassword) {
-
-                $users = [];
-
+            DB::transaction(function () use ($chunkSize, $roleIds, $roleSlugs, $hashedPassword) {
+                $userData = [];
                 for ($j = 0; $j < $chunkSize; $j++) {
-                    $users[] = [
-                        'name' => 'User ' . Str::random(6),
-                        'email' => Str::random(8) . '@example.com',
-                        'phone' => '+92' . rand(3000000000, 3999999999),
-                        'status' => rand(1, 4) === 4 ? 'inactive' : 'active',
+                    $userData[] = [
+                        'name' => fake()->name(),
+                        'email' => Str::random(8) . '_' . fake()->unique()->safeEmail(),
+                        'phone' => fake()->phoneNumber(),
+                        'status' => fake()->randomElement(['active', 'active', 'active', 'inactive']), // predominantly active
                         'password' => $hashedPassword,
                         'email_verified_at' => now(),
                         'created_at' => now(),
@@ -39,30 +45,35 @@ class SystemWideMassiveSeeder extends Seeder
                     ];
                 }
 
-                DB::table('users')->insert($users);
+                // Insert users
+                DB::table('users')->insert($userData);
 
-                $batchUsers = User::latest()->take($chunkSize)->get();
+                // Get last inserted batch
+                $batchUsers = User::orderBy('id', 'desc')->take($chunkSize)->get();
 
-                $roleUser = [];
                 $profiles = [];
+                $roleUserPivots = [];
 
                 foreach ($batchUsers as $user) {
+                    // Random Role Selection
+                    // 10% Admin, 20% Manager, 20% Staff, 50% Supporters (which can be multiple)
                     $rand = rand(1, 100);
-                    $roles = [];
+                    $selectedRoleSlugs = [];
 
                     if ($rand <= 10) {
-                        $roles[] = 'admin';
+                        $selectedRoleSlugs[] = 'admin';
                     } elseif ($rand <= 30) {
-                        $roles[] = 'camp_manager';
+                        $selectedRoleSlugs[] = 'camp_manager';
                     } elseif ($rand <= 50) {
-                        $roles[] = 'field_staff';
+                        $selectedRoleSlugs[] = 'field_staff';
                     } else {
-                        $roles = array_rand(array_flip(['supporter', 'donor', 'volunteer']), rand(1, 3));
+                        // Supporter group (can have multiple)
+                        $selectedRoleSlugs = fake()->randomElements(['supporter', 'donor', 'volunteer'], rand(1, 3));
                     }
 
-                    foreach ((array) $roles as $slug) {
+                    foreach ($selectedRoleSlugs as $slug) {
                         if (isset($roleIds[$slug])) {
-                            $roleUser[] = [
+                            $roleUserPivots[] = [
                                 'user_id' => $user->id,
                                 'role_id' => $roleIds[$slug],
                                 'starts_at' => now(),
@@ -72,19 +83,21 @@ class SystemWideMassiveSeeder extends Seeder
                         }
                     }
 
-                    if (array_intersect((array) $roles, ['supporter', 'donor', 'volunteer'])) {
+                    // Create Profile if user has any supporter-related roles
+                    $supporterSlugs = ['supporter', 'donor', 'volunteer'];
+                    if (array_intersect($selectedRoleSlugs, $supporterSlugs)) {
                         $profiles[] = [
                             'user_id' => $user->id,
-                            'skills' => 'General Support',
-                            'availability' => ['Full-time', 'Part-time', 'Weekends'][rand(0, 2)],
+                            'skills' => fake()->sentence(4),
+                            'availability' => fake()->randomElement(['Full-time', 'Part-time', 'Weekends']),
                             'created_at' => now(),
                             'updated_at' => now(),
                         ];
                     }
                 }
 
-                DB::table('role_user')->insert($roleUser);
-                if ($profiles) {
+                DB::table('role_user')->insert($roleUserPivots);
+                if (!empty($profiles)) {
                     DB::table('supporter_profiles')->insert($profiles);
                 }
             });
@@ -92,6 +105,6 @@ class SystemWideMassiveSeeder extends Seeder
             $this->command->info("Chunk " . ($i / $chunkSize + 1) . " processed.");
         }
 
-        $this->command->info("User seeding complete.");
+        $this->command->info("Seeding complete. All passwords are 'password'.");
     }
 }

@@ -37,6 +37,7 @@
                     // Tasks
                     $isManagerTasks = request()->routeIs('manager.tasks.*');
                     $isSupporterTasks = request()->routeIs('supporter.tasks.*');
+                    $isAdminOversight = request()->routeIs('admin.oversight.*');
 
                     // Parent menu open condition
                     $openCampsMenu =
@@ -45,6 +46,8 @@
                         $isAdminUrgentNeeds ||
                         $isManagerUrgentNeeds ||
                         $isManagerTasks;
+
+                    $openOversightMenu = $isAdminOversight;
 
                     $openSupporterTasksMenu = $isSupporterTasks;
                 @endphp
@@ -56,6 +59,16 @@
                         <span>Dashboard</span>
                     </a>
                 </li>
+
+                @if ($isAdmin)
+                    <li class="nav-item">
+                        <a href="{{ route('admin.oversight.tasks') }}"
+                            class="nav-link {{ request()->routeIs('admin.oversight.tasks') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-list-check text-warning"></i>
+                            <span>Task Monitoring</span>
+                        </a>
+                    </li>
+                @endif
 
                 <!-- Access & Supporters -->
                 <li class="nav-item {{ $isProfile || $isUsers || $isSupporters ? 'menu-open' : '' }}">
@@ -105,6 +118,8 @@
                         @endif
                     </ul>
                 </li>
+
+
 
                 @if ($isAdmin || $isManager)
                     <!-- Camps & Needs -->

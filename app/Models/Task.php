@@ -11,6 +11,18 @@ class Task extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Status Constants
+    public const STATUS_PENDING       = 'pending';
+    public const STATUS_IN_PROGRESS   = 'in_progress';
+    public const STATUS_COMPLETED     = 'completed';
+    public const STATUS_CANCELLED     = 'cancelled';
+
+    // Priority Constants
+    public const PRIORITY_LOW    = 'low';
+    public const PRIORITY_MEDIUM = 'medium';
+    public const PRIORITY_HIGH   = 'high';
+    public const PRIORITY_URGENT = 'urgent';
+
     protected $fillable = [
         'camp_id',
         'manager_id',

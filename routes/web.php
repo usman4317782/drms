@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\DB;
 
 /*
 |--------------------------------------------------------------------------
@@ -9,12 +8,15 @@ use Illuminate\Support\Facades\DB;
 |--------------------------------------------------------------------------
 */
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 
 /** Admin Controllers */
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\CampController as AdminCampController;
 use App\Http\Controllers\Admin\UrgentNeedController as AdminUrgentNeedController;
+use App\Http\Controllers\Admin\SupporterController as AdminSupporterController;
+use App\Http\Controllers\Admin\OversightController as AdminOversightController;
 
 /** Manager Controllers */
 
@@ -42,68 +44,62 @@ Route::view('/', 'welcome');
 */
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Dashboard
-    |--------------------------------------------------------------------------
-    */
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    /**
+     * Common Core Routes
+     */
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::view('/blank', 'blank')->name('blank');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Profile
-    |--------------------------------------------------------------------------
-    */
     Route::controller(ProfileController::class)->group(function () {
         Route::get('/profile', 'edit')->name('profile.edit');
         Route::patch('/profile', 'update')->name('profile.update');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADMIN MODULE
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * ADMIN MODULE: System Management & Monitoring
+     */
     Route::middleware('role:admin')->prefix('admin')->as('admin.')->group(function () {
+        // Resources
         Route::resource('users', AdminUserController::class);
-        Route::resource('supporters', \App\Http\Controllers\Admin\SupporterController::class);
+        Route::resource('supporters', AdminSupporterController::class);
         Route::resource('camps', AdminCampController::class);
         Route::resource('urgent-needs', AdminUrgentNeedController::class)->only(['index', 'edit', 'update', 'destroy']);
+
+        // Oversight & Audit
+        Route::controller(AdminOversightController::class)->prefix('oversight')->as('oversight.')->group(function () {
+            Route::get('/tasks', 'tasks')->name('tasks');
+            Route::get('/tasks/{task}', 'show')->name('show');
+        });
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | CAMP MANAGER MODULE
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * CAMP MANAGER MODULE: Operational Management
+     */
     Route::middleware('role:camp_manager')->prefix('manager')->as('manager.')->group(function () {
-        // Camps (Assigned only)
+        // Camps (Assigned limited access)
         Route::controller(ManagerCampController::class)->prefix('camps')->as('camps.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/{camp}/edit', 'edit')->name('edit');
             Route::put('/{camp}', 'update')->name('update');
         });
 
-        // Urgent Needs & Tasks
+        // Resources
         Route::resource('urgent-needs', ManagerUrgentNeedController::class);
         Route::resource('tasks', ManagerTaskController::class);
     });
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUPPORTER MODULE
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * SUPPORTER MODULE: Engagement & Execution
+     */
     Route::middleware('role:supporter,donor,volunteer')->prefix('supporter')->as('supporter.')->group(function () {
-        // Profile
+        // Supporter Profile
         Route::controller(SupporterProfileController::class)->group(function () {
             Route::get('profile', 'edit')->name('profile.edit');
             Route::patch('profile', 'update')->name('profile.update');
         });
 
-        // Marketplace & Task Management
+        // Task Marketplace & Management
         Route::controller(SupporterTaskController::class)->prefix('tasks')->as('tasks.')->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/my', 'myTasks')->name('my');
@@ -115,13 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| Authentication Routes
+| Authentication Layer
 |--------------------------------------------------------------------------
 */
-
-Route::get('/_show-users', function () {
-    return DB::table('users')
-        ->select('id', 'email')
-        ->get();
-});
 require __DIR__ . '/auth.php';

@@ -44,4 +44,17 @@ class Camp extends Model
     {
         return $this->hasMany(Task::class);
     }
+
+    /**
+     * Get the task completion percentage for this camp.
+     * Note: Assumes tasks_count and completed_tasks_count are loaded.
+     */
+    public function getTaskCompletionPercentageAttribute(): int
+    {
+        if ($this->tasks_count === 0) {
+            return 0;
+        }
+
+        return (int) round(($this->completed_tasks_count / $this->tasks_count) * 100);
+    }
 }

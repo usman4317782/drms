@@ -2,10 +2,20 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class UrgentNeed extends Model
 {
+    use HasFactory;
+    // Status Constants
+    public const STATUS_PENDING   = 'pending';
+    public const STATUS_FULFILLED = 'fulfilled';
+
+    // Priority Constants
+    public const PRIORITY_LOW    = 'low';
+    public const PRIORITY_MEDIUM = 'medium';
+    public const PRIORITY_HIGH   = 'high';
     protected $fillable = [
         'camp_id',
         'category',
