@@ -9,8 +9,16 @@
     <x-dashboard.stat-card title="Global Impact" value="High" icon="globe-americas" color="info" />
 </div>
 
+<!-- Personal Impact Progress -->
 <div class="row mt-4">
-    <x-dashboard.chart-card title="Personal Impact (Tasks Completed)" :chart="$data->impactChart" width="col-lg-12" />
+    <x-dashboard.progress-card title="Weekly Goal" :percentage="70" color="primary" icon="flag-fill" />
+    <x-dashboard.progress-card title="Skill Mastery" :percentage="55" color="success" icon="award-fill" />
+    <x-dashboard.progress-card title="Task Consistency" :percentage="92" color="info" icon="graph-up-arrow" />
+    <x-dashboard.progress-card title="Community Trust" :percentage="100" color="danger" icon="shield-heart" />
+</div>
+
+<div class="row mt-4">
+    <x-dashboard.chart-card title="Personal Impact Trends" :chart="$data->impactChart" width="col-lg-12" />
 </div>
 
 <div class="row mt-4">

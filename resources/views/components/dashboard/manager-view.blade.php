@@ -9,8 +9,16 @@
     <x-dashboard.stat-card title="Operational Health" value="Stable" icon="heart-pulse-fill" color="success" />
 </div>
 
-<div class="row mt-4 justify-content-center">
-    <x-dashboard.chart-card title="Task Status Breakdown" :chart="$data->taskStatusChart" width="col-lg-8" />
+<!-- Operational Progress -->
+<div class="row mt-4">
+    <x-dashboard.progress-card title="Need Fulfillment Rate" :percentage="65" color="danger" icon="cart-plus-fill" />
+    <x-dashboard.progress-card title="Task Completion Speed" :percentage="80" color="warning" icon="speedometer2" />
+    <x-dashboard.progress-card title="Camp Capacity" :percentage="45" color="success" icon="people-fill" />
+    <x-dashboard.progress-card title="Resource Allocation" :percentage="90" color="info" icon="box-seam-fill" />
+</div>
+
+<div class="row mt-4">
+    <x-dashboard.chart-card title="Camp Analytics" :chart="$data->taskStatusChart" width="col-lg-12" />
 </div>
 
 <div class="row mt-4">

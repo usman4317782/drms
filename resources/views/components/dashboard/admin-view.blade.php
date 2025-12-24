@@ -9,9 +9,17 @@
         :link="route('admin.oversight.tasks')" />
 </div>
 
+<!-- Key Performance Progress -->
 <div class="row mt-4">
-    <x-dashboard.chart-card title="Task Distribution Across Camps" :chart="$data->resourceChart" />
-    <x-dashboard.chart-card title="Recent System Activity" :chart="$data->donationChart" />
+    <x-dashboard.progress-card title="Overall Task Fulfillment" :percentage="75" color="primary" icon="check2-all" />
+    <x-dashboard.progress-card title="Urgent Needs Resolved" :percentage="60" color="danger" icon="lightning-fill" />
+    <x-dashboard.progress-card title="Volunteer Engagement" :percentage="85" color="success" icon="people-fill" />
+    <x-dashboard.progress-card title="System Health" :percentage="95" color="info" icon="cpu-fill" />
+</div>
+
+<div class="row mt-4">
+    <x-dashboard.chart-card title="Task Distribution" :chart="$data->resourceChart" />
+    <x-dashboard.chart-card title="Recent Activity" :chart="$data->donationChart" />
 </div>
 
 <div class="row mt-4">

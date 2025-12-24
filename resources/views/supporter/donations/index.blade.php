@@ -15,21 +15,6 @@
 
     <div class="app-content mt-4">
         <div class="container-fluid">
-            <!-- Stats Row -->
-            <div class="row g-4 mb-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="card border-0 shadow-sm bg-info text-white overflow-hidden">
-                        <div class="card-body p-4 position-relative">
-                            <div class="position-absolute end-0 top-0 p-3 opacity-25">
-                                <i class="bi bi-heart-pulse-fill" style="font-size: 3rem;"></i>
-                            </div>
-                            <h6 class="text-uppercase fw-bold opacity-75 mb-1 small">Total Contributions</h6>
-                            <h2 class="fw-bold mb-0">{{ $totalDonations ?? 0 }}</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <x-ui.card outlineColor="danger" title="Donation History" icon="bi-clock-history">
                 <div class="table-responsive">
                     <table id="donationsTable" class="table table-hover align-middle w-100">
