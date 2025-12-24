@@ -39,17 +39,21 @@
                     $isSupporterTasks = request()->routeIs('supporter.tasks.*');
                     $isAdminOversight = request()->routeIs('admin.oversight.*');
 
+                    // Donations
+                    $isSupporterDonations = request()->routeIs('supporter.donations.*');
+                    $isManagerDonations = request()->routeIs('manager.donations.*');
+                    $isAdminDonations = request()->routeIs('admin.donations.*');
+
                     // Parent menu open condition
                     $openCampsMenu =
                         $isAdminCamps ||
                         $isManagerCamps ||
                         $isAdminUrgentNeeds ||
                         $isManagerUrgentNeeds ||
-                        $isManagerTasks;
+                        $isManagerTasks ||
+                        $isManagerDonations;
 
-                    $openOversightMenu = $isAdminOversight;
-
-                    $openSupporterTasksMenu = $isSupporterTasks;
+                    $openSupporterTasksMenu = $isSupporterTasks || $isSupporterDonations;
                 @endphp
 
                 <!-- Dashboard -->
@@ -68,9 +72,16 @@
                             <span>Task Monitoring</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('admin.donations.index') }}"
+                            class="nav-link {{ $isAdminDonations ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-currency-dollar text-success"></i>
+                            <span>Donation Overview</span>
+                        </a>
+                    </li>
                 @endif
 
-                <!-- Access & Supporters -->
+                <!-- Access & Profiles -->
                 <li class="nav-item {{ $isProfile || $isUsers || $isSupporters ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ $isProfile || $isUsers || $isSupporters ? 'active' : '' }}">
                         <i class="nav-icon bi bi-shield-lock"></i>
@@ -119,8 +130,6 @@
                     </ul>
                 </li>
 
-
-
                 @if ($isAdmin || $isManager)
                     <!-- Camps & Needs -->
                     <li class="nav-item {{ $openCampsMenu ? 'menu-open' : '' }}">
@@ -148,6 +157,13 @@
                                         <span>Add Camp</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('admin.urgent-needs.index') }}"
+                                        class="nav-link {{ $isAdminUrgentNeeds ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-exclamation-diamond-fill"></i>
+                                        <span>Urgent Needs</span>
+                                    </a>
+                                </li>
                             @endif
 
                             @if ($isManager)
@@ -165,14 +181,11 @@
                                         <span>Task Management</span>
                                     </a>
                                 </li>
-                            @endif
-
-                            @if ($isAdmin)
                                 <li class="nav-item">
-                                    <a href="{{ route('admin.urgent-needs.index') }}"
-                                        class="nav-link {{ $isAdminUrgentNeeds ? 'active' : '' }}">
-                                        <i class="nav-icon bi bi-exclamation-diamond-fill"></i>
-                                        <span>Urgent Needs</span>
+                                    <a href="{{ route('manager.donations.index') }}"
+                                        class="nav-link {{ $isManagerDonations ? 'active' : '' }}">
+                                        <i class="nav-icon bi bi-box-seam-fill"></i>
+                                        <span>Donation Tracking</span>
                                     </a>
                                 </li>
                             @endif
@@ -181,7 +194,7 @@
                 @endif
 
                 <!-- Tasks & Contributions (Supporter) -->
-                @if ($user->hasRole(['volunteer', 'donor']))
+                @if ($user->hasRole(['volunteer', 'donor', 'supporter']))
                     <li class="nav-item {{ $openSupporterTasksMenu ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ $openSupporterTasksMenu ? 'active' : '' }}">
                             <i class="nav-icon bi bi-list-check"></i>
@@ -201,6 +214,13 @@
                                     class="nav-link {{ request()->routeIs('supporter.tasks.my') ? 'active' : '' }}">
                                     <i class="nav-icon bi bi-person-check-fill"></i>
                                     <span>My Tasks</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('supporter.donations.index') }}"
+                                    class="nav-link {{ $isSupporterDonations ? 'active' : '' }}">
+                                    <i class="nav-icon bi bi-gift-fill text-danger"></i>
+                                    <span>My Donations</span>
                                 </a>
                             </li>
                         </ul>

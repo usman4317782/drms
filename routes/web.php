@@ -17,17 +17,20 @@ use App\Http\Controllers\Admin\CampController as AdminCampController;
 use App\Http\Controllers\Admin\UrgentNeedController as AdminUrgentNeedController;
 use App\Http\Controllers\Admin\SupporterController as AdminSupporterController;
 use App\Http\Controllers\Admin\OversightController as AdminOversightController;
+use App\Http\Controllers\Admin\DonationOverviewController as AdminDonationOverviewController;
 
 /** Manager Controllers */
 
 use App\Http\Controllers\Manager\CampController as ManagerCampController;
 use App\Http\Controllers\Manager\UrgentNeedController as ManagerUrgentNeedController;
 use App\Http\Controllers\Manager\TaskController as ManagerTaskController;
+use App\Http\Controllers\Manager\DonationDistributionController as ManagerDonationDistributionController;
 
 /** Supporter Controllers */
 
 use App\Http\Controllers\Supporter\ProfileController as SupporterProfileController;
 use App\Http\Controllers\Supporter\TaskController as SupporterTaskController;
+use App\Http\Controllers\Supporter\DonationController as SupporterDonationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +68,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::resource('supporters', AdminSupporterController::class);
         Route::resource('camps', AdminCampController::class);
         Route::resource('urgent-needs', AdminUrgentNeedController::class)->only(['index', 'edit', 'update', 'destroy']);
+        Route::get('donations', [AdminDonationOverviewController::class, 'index'])->name('donations.index');
+        Route::get('donations/{donation}', [AdminDonationOverviewController::class, 'show'])->name('donations.show');
 
         // Oversight & Audit
         Route::controller(AdminOversightController::class)->prefix('oversight')->as('oversight.')->group(function () {
@@ -87,6 +92,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Resources
         Route::resource('urgent-needs', ManagerUrgentNeedController::class);
         Route::resource('tasks', ManagerTaskController::class);
+        Route::get('donations', [ManagerDonationDistributionController::class, 'index'])->name('donations.index');
+        Route::patch('donations/{donation}/status', [ManagerDonationDistributionController::class, 'updateStatus'])->name('donations.update_status');
     });
 
     /**
@@ -105,6 +112,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
             Route::get('/my', 'myTasks')->name('my');
             Route::post('/{task}/accept', 'accept')->name('accept');
             Route::post('/{task}/complete', 'complete')->name('complete');
+        });
+
+        // Donations
+        Route::controller(SupporterDonationController::class)->prefix('donations')->as('donations.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::get('/create-bulk', 'bulkCreate')->name('bulk');
+            Route::post('/', 'store')->name('store');
+            Route::post('/bulk', 'bulkStore')->name('bulk_store');
+            Route::patch('/{donation}', 'update')->name('update');
+            Route::delete('/{donation}', 'destroy')->name('destroy');
         });
     });
 });
